@@ -76,6 +76,19 @@ npm run build
 
 ## Usage
 
+### Cursor-compatible MCP server config
+
+```json
+"mcpServers": {
+   "file-edit": {
+   "command": "npx",
+   "args": [
+      "mcp-file-edit@latest"
+   ]
+   }
+}
+```
+
 ### Starting the Server
 
 ```bash
