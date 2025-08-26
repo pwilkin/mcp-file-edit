@@ -82,7 +82,7 @@ npm run build
 "mcpServers": {
    "file-edit": {
       "command": "npx",
-      "args": ["mcp-file-edit@latest"]
+      "args": ["mcp-file-editor@latest"]
    }
 }
 ```
