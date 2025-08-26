@@ -94,6 +94,8 @@ npm run build
 }
 ```
 
+[![Add MCP Server file-edit to LM Studio](https://files.lmstudio.ai/deeplink/mcp-install-light.svg)](https://lmstudio.ai/install-mcp?name=file-edit&config=eyJjb21tYW5kIjoibnB4IiwiYXJncyI6WyJtY3AtZmlsZS1lZGl0b3JAbGF0ZXN0Il19)
+
 ### Starting the Server
 
 ```bash
