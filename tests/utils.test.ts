@@ -1,15 +1,14 @@
-import { describe, it, expect, beforeAll } from 'vitest';
-import * as path from 'path';
-import * as fs from 'fs';
-import {
-  validateAbsolutePath,
-  validateFileExists,
-  validateDirectoryExists,
-  verifyLineContent,
-  normalizeContent
-} from '../src/utils.js';
-import { TEST_FILES, TEST_DIR } from './setup.js';
 import { UserError } from 'fastmcp';
+import * as path from 'path';
+import { describe, expect, it } from 'vitest';
+import {
+  normalizeContent,
+  validateAbsolutePath,
+  validateDirectoryExists,
+  validateFileExists,
+  verifyLineContent
+} from '../src/utils.js';
+import { TEST_DIR, TEST_FILES } from './setup.js';
 
 describe('Utility Functions', () => {
   describe('validateAbsolutePath', () => {

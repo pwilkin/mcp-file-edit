@@ -63,7 +63,7 @@ if __name__ == "__main__":
   },
   "features": ["feature1", "feature2"]
 }`);
-
+    fs.ensureDirSync(path.join(TEST_DIR, 'nested'));
     fs.writeFileSync(TEST_FILES.nested, 'This is a file in a nested directory.');
   } catch (error) {
     console.error('Error creating test files:', error);
