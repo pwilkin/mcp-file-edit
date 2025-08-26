@@ -81,10 +81,8 @@ npm run build
 ```json
 "mcpServers": {
    "file-edit": {
-   "command": "npx",
-   "args": [
-      "mcp-file-edit@latest"
-   ]
+      "command": "npx",
+      "args": ["mcp-file-edit@latest"]
    }
 }
 ```
