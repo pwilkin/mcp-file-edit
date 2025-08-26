@@ -1,8 +1,7 @@
-import { describe, it, expect, beforeAll } from 'vitest';
 import * as fs from 'fs';
 import * as path from 'path';
-import { UserError } from 'fastmcp';
-import { TEST_FILES, TEST_DIR, client } from './setup.js';
+import { beforeAll, describe, expect, it } from 'vitest';
+import { TEST_DIR, TEST_FILES, client } from './setup.js';
 
 describe('Search and directory tools', () => {
   beforeAll(async () => {
@@ -19,9 +18,9 @@ describe('Search and directory tools', () => {
         }
       });
 
-      expect(result.content[0].text).toContain('Match at line');
-      expect(result.content[0].text).toContain('def hello_world():');
-      expect(result.content[0].text).toContain('Match at line 1:'); // Always includes the match line
+      expect((result.content as any)[0].text).toContain('Match at line');
+      expect((result.content as any)[0].text).toContain('def hello_world():');
+      expect((result.content as any)[0].text).toContain('Match at line 1:'); // Always includes the match line
     });
 
     it('should find multiple matches', async () => {
@@ -33,11 +32,11 @@ describe('Search and directory tools', () => {
         }
       });
 
-      expect(result.content[0].text).toContain('Match at line 1:');
-      expect(result.content[0].text).toContain('Match at line 2:');
-      expect(result.content[0].text).toContain('Match at line 3:');
-      expect(result.content[0].text).toContain('Match at line 4:');
-      expect(result.content[0].text).toContain('Match at line 5:');
+      expect((result.content as any)[0].text).toContain('Match at line 1:');
+      expect((result.content as any)[0].text).toContain('Match at line 2:');
+      expect((result.content as any)[0].text).toContain('Match at line 3:');
+      expect((result.content as any)[0].text).toContain('Match at line 4:');
+      expect((result.content as any)[0].text).toContain('Match at line 5:');
     });
 
     it('should show context lines when specified', async () => {
@@ -51,10 +50,10 @@ describe('Search and directory tools', () => {
         }
       });
 
-      expect(result.content[0].text).toContain('Match at line 3:');
-      expect(result.content[0].text).toContain('Line 2: Second line');
-      expect(result.content[0].text).toContain('Line 3: Third line with some text');
-      expect(result.content[0].text).toContain('Line 4: Fourth line');
+      expect((result.content as any)[0].text).toContain('Match at line 3:');
+      expect((result.content as any)[0].text).toContain('Line 2: Second line');
+      expect((result.content as any)[0].text).toContain('Line 3: Third line with some text');
+      expect((result.content as any)[0].text).toContain('Line 4: Fourth line');
     });
 
     it('should handle regex with special characters', async () => {
@@ -66,8 +65,8 @@ describe('Search and directory tools', () => {
         }
       });
 
-      expect(result.content[0].text).toContain('Match at line');
-      expect(result.content[0].text).toContain('if __name__ == "__main__":');
+      expect((result.content as any)[0].text).toContain('Match at line');
+      expect((result.content as any)[0].text).toContain('if __name__ == "__main__":');
     });
 
     it('should return no matches message when pattern not found', async () => {
@@ -79,7 +78,7 @@ describe('Search and directory tools', () => {
         }
       });
 
-      expect(result.content[0].text).toBe(`No matches found for pattern "nonexistent_pattern" in file "${TEST_FILES.simple}".`);
+      expect((result.content as any)[0].text).toBe(`No matches found for pattern "nonexistent_pattern" in file "${TEST_FILES.simple}".`);
     });
 
     it('should reject relative paths', async () => {
@@ -92,7 +91,7 @@ describe('Search and directory tools', () => {
       });
 
       expect(result.isError).toBe(true);
-      expect(result.content[0].text).toMatch(/must be an absolute path/);
+      expect((result.content as any)[0].text).toMatch(/must be an absolute path/);
     });
 
     it('should reject non-existent files', async () => {
@@ -106,7 +105,7 @@ describe('Search and directory tools', () => {
       });
 
       expect(result.isError).toBe(true);
-      expect(result.content[0].text).toMatch(/File not found/);
+      expect((result.content as any)[0].text).toMatch(/File not found/);
     });
   });
 
@@ -119,10 +118,10 @@ describe('Search and directory tools', () => {
         }
       });
 
-      expect(result.content[0].text).toContain('[FILE]');
-      expect(result.content[0].text).toContain('[DIR]');
-      expect(result.content[0].text).toContain('simple.txt');
-      expect(result.content[0].text).toContain('subdir');
+      expect((result.content as any)[0].text).toContain('[FILE]');
+      expect((result.content as any)[0].text).toContain('[DIR]');
+      expect((result.content as any)[0].text).toContain('simple.txt');
+      expect((result.content as any)[0].text).toContain('subdir');
     });
 
     it('should show file sizes', async () => {
@@ -134,7 +133,7 @@ describe('Search and directory tools', () => {
       });
 
       // Should contain file sizes in parentheses
-      expect(result.content[0].text).toMatch(/\(\d+ bytes\)/);
+      expect((result.content as any)[0].text).toMatch(/\(\d+ bytes\)/);
     });
 
     it('should handle empty directories', async () => {
@@ -149,7 +148,7 @@ describe('Search and directory tools', () => {
           }
         });
 
-        expect(result.content[0].text).toBe(`Directory "${emptyDir}" is empty.`);
+        expect((result.content as any)[0].text).toBe(`Directory "${emptyDir}" is empty.`);
       } finally {
         fs.rmdirSync(emptyDir);
       }
@@ -164,7 +163,7 @@ describe('Search and directory tools', () => {
       });
 
       expect(result.isError).toBe(true);
-      expect(result.content[0].text).toMatch(/must be an absolute path/);
+      expect((result.content as any)[0].text).toMatch(/must be an absolute path/);
     });
 
     it('should reject non-existent directories', async () => {
@@ -177,7 +176,7 @@ describe('Search and directory tools', () => {
       });
 
       expect(result.isError).toBe(true);
-      expect(result.content[0].text).toMatch(/Directory not found/);
+      expect((result.content as any)[0].text).toMatch(/Directory not found/);
     });
 
     it('should reject files', async () => {
@@ -189,7 +188,7 @@ describe('Search and directory tools', () => {
       });
 
       expect(result.isError).toBe(true);
-      expect(result.content[0].text).toMatch(/is not a directory/);
+      expect((result.content as any)[0].text).toMatch(/is not a directory/);
     });
   });
 
@@ -203,10 +202,10 @@ describe('Search and directory tools', () => {
         }
       });
 
-      expect(result.content[0].text).toContain('Found');
-      expect(result.content[0].text).toContain('match(es) in');
-      expect(result.content[0].text).toContain('File:');
-      expect(result.content[0].text).toContain('Match at line');
+      expect((result.content as any)[0].text).toContain('Found');
+      expect((result.content as any)[0].text).toContain('match(es) in');
+      expect((result.content as any)[0].text).toContain('File:');
+      expect((result.content as any)[0].text).toContain('Match at line');
     });
 
     it('should handle recursive search', async () => {
@@ -219,9 +218,9 @@ describe('Search and directory tools', () => {
         }
       });
 
-      expect(result.content[0].text).toContain('Found');
-      expect(result.content[0].text).toContain(TEST_FILES.simple);
-      expect(result.content[0].text).toContain(TEST_FILES.nested);
+      expect((result.content as any)[0].text).toContain('Found');
+      expect((result.content as any)[0].text).toContain(TEST_FILES.simple);
+      expect((result.content as any)[0].text).toContain(TEST_FILES.nested);
     });
 
     it('should respect include patterns', async () => {
@@ -234,9 +233,9 @@ describe('Search and directory tools', () => {
         }
       });
 
-      expect(result.content[0].text).toContain('Found');
-      expect(result.content[0].text).toContain(TEST_FILES.code);
-      expect(result.content[0].text).toContain('def hello_world');
+      expect((result.content as any)[0].text).toContain('Found');
+      expect((result.content as any)[0].text).toContain(TEST_FILES.code);
+      expect((result.content as any)[0].text).toContain('def hello_world');
     });
 
     it('should respect exclude patterns', async () => {
@@ -250,8 +249,8 @@ describe('Search and directory tools', () => {
         }
       });
 
-      expect(result.content[0].text).toContain('Found');
-      expect(result.content[0].text).not.toContain(TEST_FILES.simple);
+      expect((result.content as any)[0].text).toContain('Found');
+      expect((result.content as any)[0].text).not.toContain(TEST_FILES.simple);
     });
 
     it('should show context when specified', async () => {
@@ -265,10 +264,10 @@ describe('Search and directory tools', () => {
         }
       });
 
-      expect(result.content[0].text).toContain('Found');
-      expect(result.content[0].text).toContain('Match at line');
+      expect((result.content as any)[0].text).toContain('Found');
+      expect((result.content as any)[0].text).toContain('Match at line');
       // Should contain context lines
-      expect(result.content[0].text).toMatch(/^\s*\d+ \|/m);
+      expect((result.content as any)[0].text).toMatch(/^\s*\d+ \|/m);
     });
 
     it('should return no matches message when pattern not found', async () => {
@@ -280,7 +279,7 @@ describe('Search and directory tools', () => {
         }
       });
 
-      expect(result.content[0].text).toBe(`No matches found for pattern "nonexistent_pattern_12345" in directory "${TEST_DIR}".`);
+      expect((result.content as any)[0].text).toBe(`No matches found for pattern "nonexistent_pattern_12345" in directory "${TEST_DIR}".`);
     });
 
     it('should handle files that cannot be read', async () => {
@@ -300,7 +299,7 @@ describe('Search and directory tools', () => {
       // Clean up
       fs.unlinkSync(unreadableFile);
 
-      expect(result.content[0].text).toContain('Found');
+      expect((result.content as any)[0].text).toContain('Found');
     });
 
     it('should reject relative paths', async () => {
@@ -313,7 +312,7 @@ describe('Search and directory tools', () => {
       });
 
       expect(result.isError).toBe(true);
-      expect(result.content[0].text).toMatch(/must be an absolute path/);
+      expect((result.content as any)[0].text).toMatch(/must be an absolute path/);
     });
 
     it('should reject non-existent directories', async () => {
@@ -327,7 +326,7 @@ describe('Search and directory tools', () => {
       });
 
       expect(result.isError).toBe(true);
-      expect(result.content[0].text).toMatch(/Directory not found/);
+      expect((result.content as any)[0].text).toMatch(/Directory not found/);
     });
   });
 });

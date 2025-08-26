@@ -256,7 +256,181 @@ server.addTool({
   }
 });
 
-// Tool 6: search_file
+// Tool 6: multireplace_lines_in_file
+server.addTool({
+  name: 'multireplace_lines_in_file',
+  description: 'Replace multiple line ranges in a file. All line numbers and content refer to the original file state.',
+  parameters: z.object({
+    file_path: z.string().describe('Absolute path to the file'),
+    edits: z.array(z.object({
+      line_start: z.number().int().positive().describe('Starting line number (1-based) from original file'),
+      line_end: z.number().int().positive().describe('Ending line number (1-based) from original file'),
+      line_start_contents: z.string().describe('Expected content of the starting line from original file'),
+      contents: z.string().describe('New content to replace the lines with')
+    })).describe('Array of edit operations to perform')
+  }),
+  execute: async ({ file_path, edits }) => {
+    const absolutePath = validateAbsolutePath(file_path, 'file_path');
+    validateFileExists(absolutePath);
+
+    try {
+      // Read the original file once - all line numbers and content refer to this state
+      const originalContent = fs.readFileSync(absolutePath, 'utf-8');
+      const originalLines = originalContent.split('\n');
+
+      const results: Array<{
+        index: number;
+        success: boolean;
+        error?: string;
+        line_start: number;
+        line_end: number;
+        shift?: number;
+      }> = [];
+
+      // Create a working copy of the file content
+      let workingLines = [...originalLines];
+
+      // Track line shifts for each edit to report accurate information
+      const lineShifts: Array<{ start: number; end: number; shift: number }> = [];
+      edits = edits.sort((a, b) => {
+        if (a.line_start < b.line_start) {
+          return -1;
+        } else if (a.line_start > b.line_start) {
+          return 1;
+        } else if (a.line_end < b.line_end) {
+          return -1;
+        } else if (a.line_end > b.line_end) {
+          return 1;
+        } else {
+          return 0;
+        }
+      });
+
+      // Check for overlaps
+      let previousEnd = -1;
+      for (const edit of edits) {
+        if (edit.line_start <= previousEnd) {
+          throw new UserError(`Found overlapping ranges starting from line ${edit.line_start}. Please make sure the line ranges are mutually exclusive.`);
+        }
+        previousEnd = edit.line_end;
+      }
+
+      // Process each edit in order
+      for (let i = 0; i < edits.length; i++) {
+        const edit = edits[i];
+        const result: {
+          index: number;
+          success: boolean;
+          error?: string;
+          line_start: number;
+          line_end: number;
+          shift?: number;
+        } = {
+          index: i,
+          success: false,
+          line_start: edit.line_start,
+          line_end: edit.line_end
+        };
+
+        try {
+          // Verify the starting line content against the ORIGINAL file
+          if (edit.line_start > originalLines.length) {
+            throw new UserError(`Line ${edit.line_start} does not exist in the original file (${originalLines.length} lines).`);
+          }
+
+          if (edit.line_end > originalLines.length) {
+            throw new UserError(`Line ${edit.line_end} does not exist in the original file (${originalLines.length} lines).`);
+          }
+
+          if (edit.line_start > edit.line_end) {
+            throw new UserError('line_start must be less than or equal to line_end.');
+          }
+
+          const originalLineContent = originalLines[edit.line_start - 1];
+          if (originalLineContent !== edit.line_start_contents) {
+            throw new UserError(`Line content verification failed for line ${edit.line_start} in "${absolutePath}".
+Expected (normalized): "${normalizeContent(edit.line_start_contents)}"
+Actual (normalized): "${normalizeContent(originalLineContent)}"
+Please re-read the file with show_line_numbers=true to see the current content and update your request accordingly.`);
+          }
+
+          // Find the current position of the target lines in the working copy
+          // We need to map from original line numbers to current line numbers by accounting for previous edits
+          let currentStartIndex = edit.line_start - 1; // Start with original position
+          let currentEndIndex = edit.line_end - 1;     // Start with original position
+
+          // Adjust for all previous edits that occurred before this line
+          for (const shift of lineShifts) {
+            if (shift.start <= edit.line_start) {
+              // This edit occurred at or before our target line, so adjust our indices
+              const adjustment = shift.shift;
+              currentStartIndex += adjustment;
+              currentEndIndex += adjustment;
+            }
+          }
+
+          // Verify the target range still exists in the current working copy
+          if (currentStartIndex >= workingLines.length) {
+            throw new UserError(`After previous edits, the target line range starting at original line ${edit.line_start} no longer exists in the file.`);
+          }
+
+          if (currentEndIndex >= workingLines.length) {
+            currentEndIndex = workingLines.length - 1; // Clamp to end of file
+          }
+
+          // Calculate the line shift that this edit will cause
+          const originalRangeLength = edit.line_end - edit.line_start + 1;
+          const newContentLength = edit.contents.split('\n').length;
+          const shift = newContentLength - originalRangeLength;
+
+          // Perform the replacement in the working copy
+          const newLines = [
+            ...workingLines.slice(0, currentStartIndex), // Lines before start
+            ...edit.contents.split('\n'), // New content (split into lines)
+            ...workingLines.slice(currentEndIndex + 1) // Lines after end
+          ];
+
+          workingLines = newLines;
+          result.success = true;
+          result.shift = shift;
+
+          // Record this shift for future edits
+          lineShifts.push({
+            start: edit.line_start,
+            end: edit.line_end,
+            shift: shift
+          });
+
+        } catch (error: any) {
+          result.success = false;
+          result.error = error instanceof UserError ? error.message : `Error: ${error.message}`;
+        }
+
+        results.push(result);
+      }
+
+      // Write the final content back to the file
+      const finalContent = workingLines.join('\n');
+      fs.writeFileSync(absolutePath, finalContent, 'utf-8');
+
+      const successful = results.filter(r => r.success).length;
+      const failed = results.filter(r => !r.success).length;
+
+      return `Completed ${successful} successful edits and ${failed} failed edits in "${absolutePath}".\n\n` +
+             results.map(r =>
+               `Edit ${r.index}: ${r.success ? 'SUCCESS' : 'FAILED'} - ` +
+               `lines ${r.line_start}-${r.line_end}` +
+               (r.success && r.shift !== undefined ? ` (shift: ${r.shift > 0 ? '+' : ''}${r.shift} lines)` : '') +
+               (r.success ? '' : ` - ${r.error}`)
+             ).join('\n');
+    } catch (error: any) {
+      if (error instanceof UserError) throw error;
+      throw new UserError(`Error performing multi-edit in file "${absolutePath}": ${error.message}`);
+    }
+  }
+});
+
+// Tool 7: search_file
 server.addTool({
   name: 'search_file',
   description: 'Search for regex patterns in a file and show matching lines with context.',
@@ -305,7 +479,7 @@ server.addTool({
   }
 });
 
-// Tool 7: list_files
+// Tool 8: list_files
 server.addTool({
   name: 'list_files',
   description: 'List all files and subdirectories in a given directory.',
@@ -340,7 +514,7 @@ server.addTool({
   }
 });
 
-// Tool 8: search_directory
+// Tool 9: search_directory
 server.addTool({
   name: 'search_directory',
   description: 'Search for regex patterns across all files in a directory.',

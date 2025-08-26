@@ -1,6 +1,6 @@
 {
   "name": "mcp-file-editor",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "An MCP server for file retrieval and editing operations with LLM-friendly error messages",
   "main": "build/index.js",
   "type": "module",

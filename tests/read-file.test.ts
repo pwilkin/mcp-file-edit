@@ -16,7 +16,7 @@ describe('read_file tool', () => {
       });
 
       const expected = fs.readFileSync(TEST_FILES.simple, 'utf-8');
-      expect(result.content[0].text).toBe(expected);
+      expect((result.content as any)[0].text).toBe(expected);
     });
 
     it('should read entire file by default', async () => {
@@ -28,7 +28,7 @@ describe('read_file tool', () => {
       });
 
       const expected = fs.readFileSync(TEST_FILES.simple, 'utf-8');
-      expect(result.content[0].text).toBe(expected);
+      expect((result.content as any)[0].text).toBe(expected);
     });
 
     it('should read specific line range', async () => {
@@ -41,7 +41,7 @@ describe('read_file tool', () => {
         }
       });
 
-      expect(result.content[0].text).toBe('Line 2: Second line\nLine 3: Third line with some text\nLine 4: Fourth line');
+      expect((result.content as any)[0].text).toBe('Line 2: Second line\nLine 3: Third line with some text\nLine 4: Fourth line');
     });
 
     it('should read with line numbers', async () => {
@@ -55,7 +55,7 @@ describe('read_file tool', () => {
         }
       });
 
-      expect(result.content[0].text).toBe('2 | Line 2: Second line\n3 | Line 3: Third line with some text\n4 | Line 4: Fourth line');
+      expect((result.content as any)[0].text).toBe('2 | Line 2: Second line\n3 | Line 3: Third line with some text\n4 | Line 4: Fourth line');
     });
 
     it('should read single line', async () => {
@@ -68,7 +68,7 @@ describe('read_file tool', () => {
         }
       });
 
-      expect(result.content[0].text).toBe('Line 5: Fifth line');
+      expect((result.content as any)[0].text).toBe('Line 5: Fifth line');
     });
 
     it('should read from start to middle', async () => {
@@ -81,7 +81,7 @@ describe('read_file tool', () => {
         }
       });
 
-      expect(result.content[0].text).toBe('Line 1: First line\nLine 2: Second line\nLine 3: Third line with some text\nLine 4: Fourth line\nLine 5: Fifth line');
+      expect((result.content as any)[0].text).toBe('Line 1: First line\nLine 2: Second line\nLine 3: Third line with some text\nLine 4: Fourth line\nLine 5: Fifth line');
     });
   });
 
@@ -95,7 +95,7 @@ describe('read_file tool', () => {
       });
 
       expect(result.isError).toBe(true);
-      expect(result.content[0].text).toMatch(/must be an absolute path/);
+      expect((result.content as any)[0].text).toMatch(/must be an absolute path/);
     });
 
     it('should reject non-existent files', async () => {
@@ -108,7 +108,7 @@ describe('read_file tool', () => {
       });
 
       expect(result.isError).toBe(true);
-      expect(result.content[0].text).toMatch(/File not found/);
+      expect((result.content as any)[0].text).toMatch(/File not found/);
     });
 
     it('should reject directories', async () => {
@@ -120,7 +120,7 @@ describe('read_file tool', () => {
       });
 
       expect(result.isError).toBe(true);
-      expect(result.content[0].text).toMatch(/is not a file/);
+      expect((result.content as any)[0].text).toMatch(/is not a file/);
     });
 
     it('should reject full=true with line ranges', async () => {
@@ -135,7 +135,7 @@ describe('read_file tool', () => {
       });
 
       expect(result.isError).toBe(true);
-      expect(result.content[0].text).toMatch(/Cannot use "full" parameter together with/);
+      expect((result.content as any)[0].text).toMatch(/Cannot use "full" parameter together with/);
     });
 
     it('should reject incomplete line ranges', async () => {
@@ -148,7 +148,7 @@ describe('read_file tool', () => {
       });
 
       expect(result1.isError).toBe(true);
-      expect(result1.content[0].text).toMatch(/Both "start_line" and "end_line" must be provided/);
+      expect((result1.content as any)[0].text).toMatch(/Both "start_line" and "end_line" must be provided/);
 
       const result2 = await client.callTool({
         name: 'read_file',
@@ -172,7 +172,7 @@ describe('read_file tool', () => {
       });
 
       expect(result.isError).toBe(true);
-      expect(result.content[0].text).toMatch(/"start_line" must be less than or equal to "end_line"/);
+      expect((result.content as any)[0].text).toMatch(/"start_line" must be less than or equal to "end_line"/);
     });
 
     it('should reject line numbers beyond file length', async () => {
@@ -186,7 +186,7 @@ describe('read_file tool', () => {
       });
 
       expect(result.isError).toBe(true);
-      expect(result.content[0].text).toMatch(/is beyond the file length/);
+      expect((result.content as any)[0].text).toMatch(/is beyond the file length/);
     });
   });
 
@@ -203,7 +203,7 @@ describe('read_file tool', () => {
             full: true
           }
         });
-        expect(result.content[0].text).toBe('');
+        expect((result.content as any)[0].text).toBe('');
       } finally {
         fs.unlinkSync(emptyFile);
       }
@@ -221,7 +221,7 @@ describe('read_file tool', () => {
             full: true
           }
         });
-        expect(result.content[0].text).toBe('\n\n\n');
+        expect((result.content as any)[0].text).toBe('\n\n\n');
       } finally {
         fs.unlinkSync(newlineFile);
       }
@@ -237,7 +237,7 @@ describe('read_file tool', () => {
         }
       });
 
-      expect(result.content[0].text).toBe('Line 10: Tenth line');
+      expect((result.content as any)[0].text).toBe('Line 10: Tenth line');
     });
   });
 });

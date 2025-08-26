@@ -1,6 +1,6 @@
 # MCP File Editor Server
 
-A comprehensive Model Context Protocol (MCP) server that provides advanced file operations for reading, writing, searching, and editing files. This server offers 8 powerful tools for file manipulation with robust error handling and comprehensive test coverage.
+A comprehensive Model Context Protocol (MCP) server that provides advanced file operations for reading, writing, searching, and editing files. This server offers 9 powerful tools for file manipulation with robust error handling and comprehensive test coverage.
 
 ## Features
 
@@ -31,17 +31,24 @@ A comprehensive Model Context Protocol (MCP) server that provides advanced file 
    - Line content verification
    - Flexible content insertion
 
-6. **`search_file`** - Search within individual files
+6. **`multireplace_lines_in_file`** - Multiple line replacements with automatic adjustment
+
+   - Perform multiple edits in a single operation
+   - Automatic line number adjustment after each edit
+   - Detailed success/failure reporting for each edit
+   - Handles complex line shifting scenarios
+
+7. **`search_file`** - Search within individual files
    - Regex pattern matching
    - Context lines (before/after)
    - Detailed match reporting
 
-7. **`list_files`** - Directory content listing
+8. **`list_files`** - Directory content listing
    - File and directory enumeration
    - File size information
    - Recursive directory support
 
-8. **`search_directory`** - Search across multiple files
+9. **`search_directory`** - Search across multiple files
    - Directory-wide regex search
    - Include/exclude pattern filtering
    - Recursive subdirectory searching
@@ -51,7 +58,7 @@ A comprehensive Model Context Protocol (MCP) server that provides advanced file 
 - **Robust Error Handling**: User-friendly error messages with actionable guidance
 - **Path Validation**: Absolute path enforcement with helpful error messages
 - **Content Verification**: Line content verification to prevent accidental edits
-- **Comprehensive Testing**: 73 test cases covering all functionality
+- **Comprehensive Testing**: 80 test cases covering all functionality
 - **TypeScript Implementation**: Full type safety and modern JavaScript features
 - **FastMCP Framework**: Built on the FastMCP library for optimal performance
 
@@ -122,6 +129,28 @@ const searchResult = await client.callTool({
     recursive: true
   }
 });
+
+// Multiple line replacements with automatic adjustment
+const multiEditResult = await client.callTool({
+  name: 'multireplace_lines_in_file',
+  arguments: {
+    file_path: '/path/to/file.txt',
+    edits: [
+      {
+        line_start: 10,
+        line_end: 15,
+        line_start_contents: 'Line 10: Tenth line',
+        contents: 'REPLACED LINES 10-15\nWith new content'
+      },
+      {
+        line_start: 25,
+        line_end: 30,
+        line_start_contents: 'Line 25: Twenty-fifth line',
+        contents: 'REPLACED LINES 25-30\nWith different content'
+      }
+    ]
+  }
+});
 ```
 
 ## Testing
@@ -143,7 +172,7 @@ The test suite includes:
 ### Test Coverage
 
 - `read-file.test.ts` - 16 tests for file reading operations
-- `editing-tools.test.ts` - 19 tests for file modification tools
+- `editing-tools.test.ts` - 26 tests for file modification tools (including multireplace_lines_in_file)
 - `search-tools.test.ts` - 22 tests for search and directory operations
 - `utils.test.ts` - 16 tests for utility functions
 
@@ -188,6 +217,15 @@ The test suite includes:
 - `line_end` (number, required): Ending line number
 - `line_start_contents` (string, required): Expected content of starting line
 - `contents` (string, required): Replacement content
+
+#### multireplace_lines_in_file
+
+- `file_path` (string, required): Absolute path to the file
+- `edits` (array, required): Array of edit operations
+  - `line_start` (number, required): Starting line number (1-based)
+  - `line_end` (number, required): Ending line number (1-based)
+  - `line_start_contents` (string, required): Expected content of starting line
+  - `contents` (string, required): New content to replace the lines with
 
 #### search_file
 
