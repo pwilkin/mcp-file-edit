@@ -1,0 +1,47 @@
+{
+  "name": "mcp-file-editor",
+  "version": "1.0.0",
+  "description": "An MCP server for file retrieval and editing operations with LLM-friendly error messages",
+  "main": "build/index.js",
+  "type": "module",
+  "bin": {
+    "mcp-file-editor": "build/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "start": "node build/index.js",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage"
+  },
+  "files": [
+    "build"
+  ],
+  "keywords": [
+    "MCP",
+    "file-editor",
+    "file-operations"
+  ],
+  "author": "Piotr Wilkin <ilintar@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "fastmcp": "^1.27.6",
+    "zod": "^3.24.4",
+    "fs-extra": "^11.2.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.16.5",
+    "typescript": "^5.8.3",
+    "vitest": "^1.6.0",
+    "@types/fs-extra": "^11.0.4"
+  },
+  "bugs": {
+    "url": "https://github.com/pwilkin/mcp-file-edit/issues"
+  },
+  "homepage": "https://github.com/pwilkin/mcp-file-edit#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pwilkin/mcp-file-edit.git"
+  }
+}
